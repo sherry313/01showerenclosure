@@ -1,7 +1,6 @@
 import { createReadStream, existsSync } from 'node:fs'
 import { createServer } from 'node:http'
 import { extname, join, normalize, resolve } from 'node:path'
-import nodemailer from 'nodemailer'
 
 const port = Number(process.env.PORT || 3000)
 const distDirectory = resolve('dist')
@@ -18,7 +17,7 @@ const mimeTypes = {
   '.woff2': 'font/woff2',
 }
 
-const requiredMailVariables = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS', 'CONTACT_TO_EMAIL', 'CONTACT_FROM_EMAIL']
+const requiredMailVariables = ['RESEND_API_KEY', 'CONTACT_TO_EMAIL', 'CONTACT_FROM_EMAIL']
 
 function sendJson(response, status, value) {
   response.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' })
@@ -61,28 +60,31 @@ function mailConfiguration() {
   const missing = requiredMailVariables.filter(key => !process.env[key])
   if (missing.length) return null
   return {
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT),
-    secure: process.env.SMTP_SECURE === 'true',
-    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+    apiKey: process.env.RESEND_API_KEY,
     from: process.env.CONTACT_FROM_EMAIL,
     to: process.env.CONTACT_TO_EMAIL,
+  }
+}
+
+async function sendWithResend(configuration, message) {
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${configuration.apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(message),
+    signal: AbortSignal.timeout(15000),
+  })
+  if (!response.ok) {
+    const detail = (await response.text()).slice(0, 500)
+    throw new Error(`Resend request failed (${response.status}): ${detail}`)
   }
 }
 
 async function sendContactEmail(payload) {
   const configuration = mailConfiguration()
   if (!configuration) throw new Error('Mail is not configured')
-  const transporter = nodemailer.createTransport({
-    host: configuration.host,
-    port: configuration.port,
-    secure: configuration.secure,
-    requireTLS: !configuration.secure,
-    auth: configuration.auth,
-    connectionTimeout: 15000,
-    greetingTimeout: 15000,
-    socketTimeout: 20000,
-  })
   const inquiryText = [
     'New website inquiry',
     '',
@@ -98,18 +100,18 @@ async function sendContactEmail(payload) {
     payload.message,
   ].join('\n')
 
-  await transporter.sendMail({
+  await sendWithResend(configuration, {
     from: `Dulifei Website <${configuration.from}>`,
-    to: configuration.to,
-    replyTo: payload.email,
+    to: [configuration.to],
+    reply_to: payload.email,
     subject: `Website inquiry from ${headerText(payload.name)}`,
     text: inquiryText,
   })
 
   try {
-    await transporter.sendMail({
+    await sendWithResend(configuration, {
       from: `Dulifei <${configuration.from}>`,
-      to: payload.email,
+      to: [payload.email],
       subject: 'We received your inquiry | Dulifei',
       text: `Hello ${payload.name},\n\nThank you for contacting Dulifei. We have received your inquiry and will review the information you shared.\n\nBest regards,\nDulifei`,
     })
