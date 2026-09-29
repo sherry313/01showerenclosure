@@ -149,7 +149,7 @@ async function handleContact(request, response) {
 
 function serveFile(pathname, response) {
   const relativePath = pathname === '/' ? 'index.html' : normalize(pathname).replace(/^([/\\]*\.\.[/\\]*)+/, '')
-  const requestedFile = resolve(distDirectory, `.${relativePath}`)
+  const requestedFile = resolve(distDirectory, `./${relativePath}`)
   const isAssetRequest = extname(requestedFile) !== ''
   const file = requestedFile.startsWith(distDirectory) && existsSync(requestedFile)
     ? requestedFile
