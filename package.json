@@ -8,16 +8,18 @@
     "dev": "vite",
     "prebuild": "npm run validate:products",
     "build": "tsc -b && vite build",
+    "start": "node server.mjs",
     "preview": "vite preview",
     "validate:products": "node scripts/validate-product-catalog.mjs"
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
-    "vite": "latest",
-    "typescript": "latest",
+    "nodemailer": "^10.0.12",
     "react": "latest",
     "react-dom": "latest",
-    "react-router-dom": "latest"
+    "react-router-dom": "latest",
+    "typescript": "latest",
+    "vite": "latest"
   },
   "devDependencies": {
     "@types/react": "latest",
