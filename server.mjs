@@ -79,6 +79,9 @@ async function sendContactEmail(payload) {
     secure: configuration.secure,
     requireTLS: !configuration.secure,
     auth: configuration.auth,
+    connectionTimeout: 15000,
+    greetingTimeout: 15000,
+    socketTimeout: 20000,
   })
   const inquiryText = [
     'New website inquiry',
