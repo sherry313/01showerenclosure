@@ -78,6 +78,34 @@
   .page-hero--products h1,.page-hero--factory h1,.page-hero--projects h1{font-size:clamp(36px,10vw,39px);line-height:1.1;max-width:350px}
 }
 
+/* Mobile reading and touch refinements. Keep the desktop composition intact while
+   making navigation, forms, and long sections easier to use on a phone. */
+@media(max-width:640px){
+  html{scroll-padding-top:70px}
+  body{overflow-x:clip}
+  .site-header{position:sticky;top:0;height:68px}
+  .header-inner,.container{width:min(100% - 40px,1280px)}
+  .mark img{height:42px;max-width:210px}
+  .menu-button{width:48px;height:48px;padding:13px}
+  .main-nav{position:fixed;top:68px;height:calc(100dvh - 68px);padding:20px;background:var(--paper);overflow-y:auto}
+  .main-nav>a:not(.button){min-height:52px;display:flex;align-items:center;font-size:22px;padding:11px 0}
+  .nav-cta{width:100%;min-height:54px;margin-top:20px}
+  .hero{height:auto;min-height:660px}
+  .hero-content{padding-top:76px;padding-bottom:48px}
+  .hero-copy{line-height:1.65}
+  .section{padding-block:72px}
+  .intro{padding-bottom:34px}
+  .section-head>p,.products-portfolio-heading>p{line-height:1.68}
+  .button,.inquiry-form input,.inquiry-form select{min-height:52px}
+  .inquiry-form input,.inquiry-form select,.inquiry-form textarea{font-size:16px}
+  .inquiry-form textarea{min-height:144px}
+  .split-copy{padding:72px 20px}
+  .footer-grid{grid-template-columns:1fr;gap:34px;padding-block:52px}
+  .footer-grid>div:first-child,.footer-grid>div:last-child{grid-column:auto}
+  .footer-grid>div>a:not(.mark){min-height:30px;display:flex;align-items:center}
+  .footer-bottom{padding-block:20px}
+}
+
 /* Products V1.2: product-led split hero, category discovery, and deduplicated portfolio. */
 .products-hero{min-height:680px;display:grid;grid-template-columns:minmax(0,44fr) minmax(0,56fr);background:var(--paper);border-bottom:1px solid var(--line)}
 .products-hero-copy{padding:84px 64px 64px max(24px,calc((100vw - 1280px)/2));display:flex;flex-direction:column;justify-content:center;align-items:flex-start}
